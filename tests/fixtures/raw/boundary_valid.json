@@ -1,0 +1,28 @@
+{
+  "id": 9000007,
+  "name": "Boundaryville",
+  "dt": 1755773100,
+  "coord": {
+    "lat": 90.0,
+    "lon": 180.0
+  },
+  "sys": {
+    "country": "AQ"
+  },
+  "main": {
+    "temp": 60.0,
+    "feels_like": 59.0,
+    "humidity": 100,
+    "pressure": 1013
+  },
+  "wind": {
+    "speed": 0.0,
+    "deg": 0
+  },
+  "weather": [
+    {
+      "main": "Clear",
+      "description": "clear sky"
+    }
+  ]
+}

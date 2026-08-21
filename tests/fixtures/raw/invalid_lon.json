@@ -1,0 +1,28 @@
+{
+  "id": 9000006,
+  "name": "Dateline",
+  "dt": 1755773040,
+  "coord": {
+    "lat": 0.0,
+    "lon": -200.0
+  },
+  "sys": {
+    "country": "KI"
+  },
+  "main": {
+    "temp": 27.5,
+    "feels_like": 29.0,
+    "humidity": 78,
+    "pressure": 1011
+  },
+  "wind": {
+    "speed": 6.2,
+    "deg": 110
+  },
+  "weather": [
+    {
+      "main": "Clouds",
+      "description": "scattered clouds"
+    }
+  ]
+}

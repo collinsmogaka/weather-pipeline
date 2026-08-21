@@ -1,0 +1,28 @@
+{
+  "id": 9000002,
+  "name": "Timeless",
+  "dt": null,
+  "coord": {
+    "lat": 40.7128,
+    "lon": -74.006
+  },
+  "sys": {
+    "country": "US"
+  },
+  "main": {
+    "temp": 22.0,
+    "feels_like": 21.5,
+    "humidity": 58,
+    "pressure": 1015
+  },
+  "wind": {
+    "speed": 3.0,
+    "deg": 200
+  },
+  "weather": [
+    {
+      "main": "Clear",
+      "description": "few clouds"
+    }
+  ]
+}

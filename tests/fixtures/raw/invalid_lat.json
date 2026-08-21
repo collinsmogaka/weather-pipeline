@@ -1,0 +1,28 @@
+{
+  "id": 9000005,
+  "name": "Poleward",
+  "dt": 1755772980,
+  "coord": {
+    "lat": 91.0,
+    "lon": 0.0
+  },
+  "sys": {
+    "country": "AQ"
+  },
+  "main": {
+    "temp": -45.0,
+    "feels_like": -50.0,
+    "humidity": 20,
+    "pressure": 990
+  },
+  "wind": {
+    "speed": 12.0,
+    "deg": 320
+  },
+  "weather": [
+    {
+      "main": "Snow",
+      "description": "blowing snow"
+    }
+  ]
+}

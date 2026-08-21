@@ -1,0 +1,28 @@
+{
+  "id": null,
+  "name": "Anonymity",
+  "dt": 1755772801,
+  "coord": {
+    "lat": 48.8566,
+    "lon": 2.3522
+  },
+  "sys": {
+    "country": "FR"
+  },
+  "main": {
+    "temp": 16.0,
+    "feels_like": 15.5,
+    "humidity": 65,
+    "pressure": 1014
+  },
+  "wind": {
+    "speed": 2.8,
+    "deg": 180
+  },
+  "weather": [
+    {
+      "main": "Rain",
+      "description": "light rain"
+    }
+  ]
+}

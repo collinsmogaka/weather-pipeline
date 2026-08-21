@@ -1,0 +1,28 @@
+{
+  "id": 9000004,
+  "name": "Swamptown",
+  "dt": 1755772920,
+  "coord": {
+    "lat": 1.3521,
+    "lon": 103.8198
+  },
+  "sys": {
+    "country": "SG"
+  },
+  "main": {
+    "temp": 30.0,
+    "feels_like": 34.5,
+    "humidity": 120,
+    "pressure": 1009
+  },
+  "wind": {
+    "speed": 1.5,
+    "deg": 45
+  },
+  "weather": [
+    {
+      "main": "Rain",
+      "description": "heavy rain"
+    }
+  ]
+}

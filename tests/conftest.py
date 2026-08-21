@@ -1,0 +1,7 @@
+import sys
+from pathlib import Path
+
+# Makes `import src.<module>` resolve regardless of the pytest invocation directory.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))

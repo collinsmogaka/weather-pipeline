@@ -1,0 +1,28 @@
+{
+  "id": 9000003,
+  "name": "Furnace",
+  "dt": 1755772860,
+  "coord": {
+    "lat": 25.2048,
+    "lon": 55.2708
+  },
+  "sys": {
+    "country": "AE"
+  },
+  "main": {
+    "temp": 75.0,
+    "feels_like": 74.0,
+    "humidity": 40,
+    "pressure": 1008
+  },
+  "wind": {
+    "speed": 5.0,
+    "deg": 90
+  },
+  "weather": [
+    {
+      "main": "Clear",
+      "description": "extreme heat"
+    }
+  ]
+}

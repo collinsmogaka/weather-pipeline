@@ -1,0 +1,8 @@
+venv/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+data/raw/
+data/processed/
+data/weather_dwh.duckdb
