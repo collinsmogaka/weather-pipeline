@@ -3,6 +3,9 @@ venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 data/raw/
 data/processed/
+data/quarantine/
 data/weather_dwh.duckdb

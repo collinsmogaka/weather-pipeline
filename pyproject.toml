@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+# E501 exempted: ruff format governs code lines; long HTML/SQL/log string
+# literals are not mechanically splittable.
+ignore = ["E501"]
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src"]
+warn_unused_configs = true
+warn_redundant_casts = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["pyspark.*", "prefect.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
