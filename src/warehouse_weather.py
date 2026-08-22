@@ -2,7 +2,6 @@ from pathlib import Path
 
 import duckdb
 
-
 DATABASE_PATH = "data/weather_dwh.duckdb"
 PROCESSED_PATH = Path("data/processed/weather")
 
@@ -12,29 +11,20 @@ def get_parquet_files() -> list[str]:
     processed_dir = (project_root / PROCESSED_PATH).resolve()
 
     if not processed_dir.exists():
-        raise FileNotFoundError(
-            f"Processed directory does not exist: {processed_dir}"
-        )
+        raise FileNotFoundError(f"Processed directory does not exist: {processed_dir}")
 
     parquet_files = sorted(
-        path
-        for path in processed_dir.rglob("*.parquet")
-        if path.is_file()
+        path for path in processed_dir.rglob("*.parquet") if path.is_file()
     )
 
     if not parquet_files:
-        raise FileNotFoundError(
-            f"No Parquet files found under: {processed_dir}"
-        )
+        raise FileNotFoundError(f"No Parquet files found under: {processed_dir}")
 
     print("\n--- Parquet Files Found ---")
     for path in parquet_files:
         print(f"  {path}")
 
-    return [
-        path.as_posix()
-        for path in parquet_files
-    ]
+    return [path.as_posix() for path in parquet_files]
 
 
 def create_connection() -> duckdb.DuckDBPyConnection:
@@ -68,6 +58,12 @@ def print_quick_scan(con: duckdb.DuckDBPyConnection) -> int:
         FROM src_weather
         """
     ).fetchone()
+
+    if result is None:
+        raise RuntimeError(
+            "Quick scan query returned no row; the Parquet source view "
+            "may be unreadable."
+        )
 
     total_records = int(result[0])
     print(f"Total clean records: {total_records}")
@@ -114,7 +110,7 @@ def create_dimension_table(
                 latitude,
                 longitude,
                 ROW_NUMBER() OVER (
-                    PARTITION BY city_id 
+                    PARTITION BY city_id
                     ORDER BY reading_timestamp DESC
                 ) AS rn
             FROM src_weather
@@ -154,10 +150,7 @@ def create_fact_table(
 def create_analytical_view(
     con: duckdb.DuckDBPyConnection,
 ) -> None:
-    print(
-        "Creating Analytical Data Mart View: "
-        "vw_city_weather_metrics..."
-    )
+    print("Creating Analytical Data Mart View: vw_city_weather_metrics...")
 
     con.execute(
         """

@@ -158,9 +158,7 @@ class TestClearStaleTempDirs:
 
         transform.clear_stale_temp_dirs()
 
-    def test_raises_actionable_error_when_locked(
-        self, tmp_path, monkeypatch
-    ) -> None:
+    def test_raises_actionable_error_when_locked(self, tmp_path, monkeypatch) -> None:
         monkeypatch.setattr(transform, "PROCESSED_PATH", str(tmp_path / "processed"))
         stale = tmp_path / "processed" / "_temporary"
         stale.mkdir(parents=True)

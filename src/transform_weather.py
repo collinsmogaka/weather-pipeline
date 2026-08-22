@@ -1,16 +1,26 @@
-import os
 import shutil
 import sys
 from pathlib import Path
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
-    col, from_unixtime, when, current_timestamp,
-    array, array_compact, size, lit, count, concat_ws
+    array,
+    array_compact,
+    col,
+    concat_ws,
+    current_timestamp,
+    from_unixtime,
+    lit,
+    size,
+    when,
 )
 from pyspark.sql.types import (
-    StructType, StructField, StringType, 
-    DoubleType, LongType, ArrayType
+    ArrayType,
+    DoubleType,
+    LongType,
+    StringType,
+    StructField,
+    StructType,
 )
 
 RAW_PATH = "data/raw/weather"
@@ -38,39 +48,68 @@ def clear_stale_temp_dirs() -> None:
 
 def build_spark_session() -> SparkSession:
     return (
-        SparkSession.builder
-        .appName("WeatherDataTransformation")
+        SparkSession.builder.appName("WeatherDataTransformation")
         .master("local[*]")
         .getOrCreate()
     )
 
+
 def get_raw_weather_schema() -> StructType:
-    return StructType([
-        StructField("id", LongType(), True),
-        StructField("name", StringType(), True),
-        StructField("dt", LongType(), True),
-        StructField("coord", StructType([
-            StructField("lon", DoubleType(), True),
-            StructField("lat", DoubleType(), True)
-        ]), True),
-        StructField("sys", StructType([
-            StructField("country", StringType(), True)
-        ]), True),
-        StructField("main", StructType([
-            StructField("temp", DoubleType(), True),
-            StructField("feels_like", DoubleType(), True),
-            StructField("pressure", LongType(), True),
-            StructField("humidity", LongType(), True)
-        ]), True),
-        StructField("wind", StructType([
-            StructField("speed", DoubleType(), True),
-            StructField("deg", LongType(), True)
-        ]), True),
-        StructField("weather", ArrayType(StructType([
-            StructField("main", StringType(), True),
-            StructField("description", StringType(), True)
-        ])), True)
-    ])
+    return StructType(
+        [
+            StructField("id", LongType(), True),
+            StructField("name", StringType(), True),
+            StructField("dt", LongType(), True),
+            StructField(
+                "coord",
+                StructType(
+                    [
+                        StructField("lon", DoubleType(), True),
+                        StructField("lat", DoubleType(), True),
+                    ]
+                ),
+                True,
+            ),
+            StructField(
+                "sys", StructType([StructField("country", StringType(), True)]), True
+            ),
+            StructField(
+                "main",
+                StructType(
+                    [
+                        StructField("temp", DoubleType(), True),
+                        StructField("feels_like", DoubleType(), True),
+                        StructField("pressure", LongType(), True),
+                        StructField("humidity", LongType(), True),
+                    ]
+                ),
+                True,
+            ),
+            StructField(
+                "wind",
+                StructType(
+                    [
+                        StructField("speed", DoubleType(), True),
+                        StructField("deg", LongType(), True),
+                    ]
+                ),
+                True,
+            ),
+            StructField(
+                "weather",
+                ArrayType(
+                    StructType(
+                        [
+                            StructField("main", StringType(), True),
+                            StructField("description", StringType(), True),
+                        ]
+                    )
+                ),
+                True,
+            ),
+        ]
+    )
+
 
 def transform_and_validate_weather():
     spark = build_spark_session()
@@ -79,8 +118,7 @@ def transform_and_validate_weather():
     print(f"Reading from: {RAW_PATH}")
 
     raw_df = (
-        spark.read
-        .schema(get_raw_weather_schema())
+        spark.read.schema(get_raw_weather_schema())
         .option("recursiveFileLookup", "true")
         .option("multiLine", "true")
         .json(RAW_PATH)
@@ -104,7 +142,7 @@ def transform_and_validate_weather():
         col("main.pressure").alias("pressure_hpa"),
         col("wind.speed").alias("wind_speed_m_s"),
         col("weather")[0]["main"].alias("weather_condition"),
-        col("weather")[0]["description"].alias("weather_description")
+        col("weather")[0]["description"].alias("weather_description"),
     ).dropDuplicates(["city_id", "reading_timestamp"])
 
     print(f"DEBUG -> Records after transformation: {transformed_df.count()}")
@@ -115,21 +153,31 @@ def transform_and_validate_weather():
     error_conditions = array(
         when(col("city_id").isNull(), lit("NULL_CITY_ID")),
         when(col("reading_timestamp").isNull(), lit("NULL_READING_TIMESTAMP")),
-        when((col("temp_celsius") < -90) | (col("temp_celsius") > 60), lit("TEMP_OUT_OF_BOUNDS")),
-        when((col("humidity_pct") < 0) | (col("humidity_pct") > 100), lit("HUMIDITY_OUT_OF_BOUNDS")),
-        when((col("latitude") < -90) | (col("latitude") > 90), lit("LATITUDE_OUT_OF_BOUNDS")),
-        when((col("longitude") < -180) | (col("longitude") > 180), lit("LONGITUDE_OUT_OF_BOUNDS"))
+        when(
+            (col("temp_celsius") < -90) | (col("temp_celsius") > 60),
+            lit("TEMP_OUT_OF_BOUNDS"),
+        ),
+        when(
+            (col("humidity_pct") < 0) | (col("humidity_pct") > 100),
+            lit("HUMIDITY_OUT_OF_BOUNDS"),
+        ),
+        when(
+            (col("latitude") < -90) | (col("latitude") > 90),
+            lit("LATITUDE_OUT_OF_BOUNDS"),
+        ),
+        when(
+            (col("longitude") < -180) | (col("longitude") > 180),
+            lit("LONGITUDE_OUT_OF_BOUNDS"),
+        ),
     )
 
     # array_compact strips the NULL slots left by when()-without-otherwise;
     # array_remove(error_conditions, NULL) returns NULL itself on Spark 4.x,
     # which silently disabled every DQ rule (regression: tests/test_transform.py)
-    validated_df = transformed_df.withColumn(
-        "validation_errors", array_compact(error_conditions)
-    ).withColumn(
-        "is_valid", size(col("validation_errors")) == 0
-    ).withColumn(
-        "processed_at", current_timestamp()
+    validated_df = (
+        transformed_df.withColumn("validation_errors", array_compact(error_conditions))
+        .withColumn("is_valid", size(col("validation_errors")) == 0)
+        .withColumn("processed_at", current_timestamp())
     )
 
     # 3. Circuit Breaker Metric Check
@@ -144,15 +192,21 @@ def transform_and_validate_weather():
         sys.exit(1)
 
     error_rate = invalid_records / total_records
-    print(f"Data Quality Audit: {total_records} total | {invalid_records} invalid | Error Rate: {error_rate:.2%}")
+    print(
+        f"Data Quality Audit: {total_records} total | {invalid_records} invalid | Error Rate: {error_rate:.2%}"
+    )
 
     # Circuit breaker: Fail job if more than 20% of batch is corrupt
     if error_rate > 0.20:
-        raise ValueError(f"Circuit Breaker Triggered! Error rate ({error_rate:.2%}) exceeds threshold (20%).")
+        raise ValueError(
+            f"Circuit Breaker Triggered! Error rate ({error_rate:.2%}) exceeds threshold (20%)."
+        )
 
     # 4. Quarantine Routing
-    valid_df = validated_df.filter(col("is_valid")).drop("validation_errors", "is_valid")
-    
+    valid_df = validated_df.filter(col("is_valid")).drop(
+        "validation_errors", "is_valid"
+    )
+
     # Fixed: String conversion for array errors to ensure safe Parquet output serialization
     quarantine_df = (
         validated_df.filter(~col("is_valid"))
@@ -164,25 +218,28 @@ def transform_and_validate_weather():
     clear_stale_temp_dirs()
     print(f"Writing clean records to: {PROCESSED_PATH}")
     (
-        valid_df
-        .coalesce(1)  # Fixed: Condenses output partitions into clean, single Parquet files
-        .write
-        .mode("overwrite")
-        #.partitionBy("country")
+        valid_df.coalesce(
+            1
+        )  # Fixed: Condenses output partitions into clean, single Parquet files
+        .write.mode("overwrite")
+        # .partitionBy("country")
         .parquet(PROCESSED_PATH)
     )
 
     if invalid_records > 0:
-        print(f"Routing {invalid_records} corrupt record(s) to quarantine: {QUARANTINE_PATH}")
+        print(
+            f"Routing {invalid_records} corrupt record(s) to quarantine: {QUARANTINE_PATH}"
+        )
         (
-            quarantine_df
-            .coalesce(1)  # Fixed: Prevents generation of empty/fragmented files in append mode
-            .write
-            .mode("append")
+            quarantine_df.coalesce(
+                1
+            )  # Fixed: Prevents generation of empty/fragmented files in append mode
+            .write.mode("append")
             .parquet(QUARANTINE_PATH)
         )
 
     print("PySpark pipeline with Data Quality checks executed successfully.")
+
 
 if __name__ == "__main__":
     transform_and_validate_weather()
